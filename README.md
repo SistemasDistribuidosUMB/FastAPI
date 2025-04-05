@@ -109,9 +109,38 @@ curl -X POST "http://localhost:8000/api/v1/profiles" -H "Content-Type: applicati
 
 ## Tecnologías Utilizadas
 
-- FastAPI
-- MongoDB Atlas
-- Pydantic
-- Jinja2
-- FPDF
-- Python-dotenv
+### FastAPI
+- Framework moderno y rápido para construir APIs con Python
+- Alto rendimiento y validación automática de datos
+- Documentación automática (Swagger/OpenAPI)
+- Soporte nativo para async/await
+
+### MongoDB Atlas
+- Base de datos NoSQL orientada a documentos en la nube
+- Almacenamiento de datos en formato JSON/BSON
+- Escalabilidad horizontal y alta disponibilidad
+- Gestión automatizada en la nube
+
+### Pydantic
+- Biblioteca de Python para validación de datos
+- Gestión de configuraciones
+- Serialización/deserialización de datos
+- Enforcing de tipos en tiempo de ejecución
+
+### Jinja2
+- Motor de plantillas para Python
+- Generación de documentos HTML dinámicamente
+- Reutilización de componentes de plantillas
+- Herencia de plantillas y escapado automático
+
+### FPDF
+- Biblioteca para crear documentos PDF en Python
+- Generación de PDFs desde cero
+- Soporte para texto, imágenes y formas
+- Creación de tablas y elementos de diseño
+
+### Python-dotenv
+- Carga de variables de entorno desde archivos .env
+- Manejo de configuraciones sensibles
+- Separación de configuración y código
+- Gestión segura de credenciales
