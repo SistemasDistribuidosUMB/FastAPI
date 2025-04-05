@@ -1,12 +1,26 @@
-# Este archivo es el punto de entrada principal de la aplicación FastAPI
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-import os
-import logging
+"""
+CV Generator API - Aplicación Principal
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
+Este módulo es el punto de entrada principal de la aplicación FastAPI para generar y gestionar CVs.
+Configura la aplicación FastAPI, el sistema de logging, y los middlewares necesarios.
+"""
+
+import logging
+import os
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración del sistema de logging
+logging.basicConfig(
+    level=logging.INFO if os.getenv("DEBUG", "False").lower() == "true" else logging.WARNING,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Obtener la ruta base del proyecto
@@ -15,14 +29,23 @@ logger.info(f"Directorio base: {BASE_DIR}")
 
 # Crear la aplicación FastAPI
 app = FastAPI(
-    title="CV Generator API",
+    title=os.getenv("APP_NAME", "CV Generator API"),
+    version=os.getenv("APP_VERSION", "1.0.0"),
     description="API para generar CVs en formato PDF y HTML",
-    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
 
-# Configurar archivos estáticos
+# Configurar CORS para permitir peticiones desde cualquier origen
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, especificar los orígenes permitidos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Montar archivos estáticos
 static_path = os.path.join(BASE_DIR, "static")
 logger.info(f"Directorio de archivos estáticos: {static_path}")
 app.mount("/static", StaticFiles(directory=static_path), name="static")
@@ -48,7 +71,22 @@ for route in app.routes:
     if hasattr(route, 'methods'):
         logger.info(f"  {route.path} [{route.methods}]")
 
-# Si se ejecuta directamente
+# Manejador de errores global
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    """
+    Manejador global de excepciones HTTP.
+    Registra los errores en el log y devuelve una respuesta JSON apropiada.
+    """
+    logger.error(f"Error HTTP {exc.status_code}: {exc.detail}")
+    return {
+        "error": True,
+        "status_code": exc.status_code,
+        "message": exc.detail
+    }
+
+# Punto de entrada para ejecución directa
 if __name__ == "__main__":
     import uvicorn
+    # Ejecutar el servidor con recarga automática en desarrollo
     uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
